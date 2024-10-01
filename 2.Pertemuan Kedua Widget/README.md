@@ -323,3 +323,7 @@ Dengan kode ini, `OurLecturers` menampilkan daftar dosen dengan foto bulat dan n
 ![alt text](image/lectures.png)
 
 <video controls src="image/record.mp4" title="Title"></video>
+
+# Terdapat Error pada SDK tapi masih bisa dijalankan👍😁
+
+![alt text](<image/error sdk.png>)
