@@ -91,6 +91,8 @@ Fungsi `main` menjalankan aplikasi dengan `MyApp`.
 
 Dengan modifikasi ini, aplikasi Flutter menampilkan halaman dengan `AppBar` yang memiliki logo dan tombol "Sign Up", serta menampilkan konten dari widget `HeroSection`.
 
+![alt text](image/head.png)
+
 ## Membuat HeroSection
 
 Selanjutnya, saya membuat file `herosection.dart` di dalam folder `widgets` dengan kode berikut:
@@ -201,6 +203,8 @@ Mengimpor `package:flutter/material.dart` dan `our_lecturers.dart`.
 - Diimpor dari file `our_lecturers.dart`.
 
 Dengan kode ini, `HeroSection` menampilkan teks, tombol, dan daftar dosen dalam satu kolom yang terpusat.
+
+![alt text](image/hero.png)
 
 ## Membuat OurLecturers
 
@@ -315,3 +319,7 @@ class LecturerCard extends StatelessWidget {
 - Menampilkan nama dosen di bawah foto dengan gaya teks yang tebal dan ukuran font 16.
 
 Dengan kode ini, `OurLecturers` menampilkan daftar dosen dengan foto bulat dan nama di bawahnya dalam satu baris yang dapat digulir secara horizontal.
+
+![alt text](image/lectures.png)
+
+<video controls src="image/record.mp4" title="Title"></video>
