@@ -401,3 +401,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 Dan selesai!
 
 ![alt text](image-4.png)
+
+# Register
+
+![alt text](image-5.png)
+
+# Login
+
+![alt text](image-6.png)
