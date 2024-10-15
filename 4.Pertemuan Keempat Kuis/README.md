@@ -562,3 +562,14 @@ class Product {
 https://github.com/user-attachments/assets/f3cdde14-af9d-4dba-91a4-517513a16ba2
 
 
+1. [Learn Flutter: How to Add Images in Your Flutter App](https://medium.com/@blup-tool/learn-flutter-how-to-add-images-in-your-flutter-app-359c27600064)  
+   Penjelasan tentang cara menambahkan gambar ke aplikasi Flutter.
+2. [Build Flutter ListView Food App Navigator ListView Tutorial](https://bigknol.com/flutter/build-flutter-listview-food-app-navigator-listview-tutorial/)  
+   Tutorial untuk membuat aplikasi makanan menggunakan ListView dan navigasi di Flutter.
+3. [Understanding JWT Tokens in Flutter](https://medium.com/@hpatilabhi10/understanding-jwt-tokens-in-flutter-0dfd0f495715)  
+   Penjelasan mengenai JWT (JSON Web Tokens) di Flutter.
+4. [Describe Named Routes and How They Are Used for Navigation in Flutter](https://medium.com/@chetan.akarte/describe-named-routes-and-how-they-are-used-for-navigation-in-flutter-7b2a9716bab9)  
+   Pembahasan tentang Named Routes dan penggunaannya untuk navigasi di Flutter.
+5. [How to Import Data from One Page to Another in Flutter](https://www.geeksforgeeks.org/how-to-import-data-from-one-page-to-another-in-flutter/)  
+   Tutorial mengenai cara mengimpor data dari satu halaman ke halaman lain di Flutter.
+
