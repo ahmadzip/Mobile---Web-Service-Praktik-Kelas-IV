@@ -6,55 +6,42 @@ import 'package:permission_handler/permission_handler.dart';
 
 class DashboardPage extends StatefulWidget {
   final String username;
+  final String email;
 
-  const DashboardPage({super.key, required this.username});
+  const DashboardPage({super.key, required this.username, required this.email});
 
   @override
   _DashboardPageState createState() => _DashboardPageState();
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  final List<Product> products = [
-    Product(
-      name: 'Acocado Salad',
-      description: 'Fresh avocado salad with cherry tomatoes',
-      imageUrl: 'images/food1.png',
-      price: 100000,
-    ),
-    Product(
-      name: 'Egg Boil Bread',
-      description: 'Boiled egg with bread and vegetables',
-      imageUrl: 'images/food2.png',
-      price: 80000,
-    ),
-    Product(
-      name: 'Fried Shrimp',
-      description: 'Fried shrimp with vegetables',
-      imageUrl: 'images/food3.png',
-      price: 120000,
-    ),
-    Product(
-      name: 'Salmon Steam',
-      description: 'Steamed salmon with vegetables',
-      imageUrl: 'images/food4.png',
-      price: 150000,
-    ),
-    Product(
-      name: 'Vegetable Salad',
-      description: 'Fresh vegetable salad with cherry tomatoes',
-      imageUrl: 'images/food5.png',
-      price: 90000,
-    ),
-  ];
+  List<Product> products = [];
 
   @override
   void initState() {
     super.initState();
     FlutterDownloader.initialize();
+    _fetchProducts();
   }
 
   void _logout() {
     Navigator.pushReplacementNamed(context, '/login');
+  }
+
+  Future<void> _fetchProducts() async {
+    final response =
+        await http.get(Uri.parse('http://192.168.0.105:3000/products'));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> productJson = jsonDecode(response.body);
+      setState(() {
+        products = productJson.map((json) => Product.fromJson(json)).toList();
+      });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load products')),
+      );
+    }
   }
 
   Future<void> _createQris(Product product) async {
@@ -67,6 +54,8 @@ class _DashboardPageState extends State<DashboardPage> {
         'name': product.name,
         'price': product.price,
         'description': product.description,
+        'sku': product.sku,
+        'email': widget.email,
       }),
     );
 
@@ -175,6 +164,11 @@ class _DashboardPageState extends State<DashboardPage> {
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
+                      Text(
+                        widget.email,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
                       const Text(
                         'Selamat Pagi',
                         style: TextStyle(
@@ -210,7 +204,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         children: <Widget>[
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10.0),
-                            child: Image.asset(
+                            child: Image.network(
                               product.imageUrl,
                               width: 80,
                               height: 80,
@@ -231,6 +225,11 @@ class _DashboardPageState extends State<DashboardPage> {
                                 const SizedBox(height: 5),
                                 Text(
                                   product.description,
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                                const SizedBox(height: 5),
+                                Text(
+                                  'SKU: ${product.sku}',
                                   style: const TextStyle(fontSize: 14),
                                 ),
                                 const SizedBox(height: 5),
@@ -266,15 +265,27 @@ class _DashboardPageState extends State<DashboardPage> {
 }
 
 class Product {
+  final String sku;
   final String name;
   final String description;
   final String imageUrl;
   final int price;
 
   Product({
+    required this.sku,
     required this.name,
     required this.description,
     required this.imageUrl,
     required this.price,
   });
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      sku: json['sku'],
+      name: json['name'],
+      description: json['description'],
+      imageUrl: json['imageUrl'],
+      price: json['price'],
+    );
+  }
 }

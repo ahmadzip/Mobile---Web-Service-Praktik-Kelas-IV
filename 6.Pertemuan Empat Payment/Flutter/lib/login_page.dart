@@ -47,7 +47,8 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => DashboardPage(username: username),
+          builder: (context) =>
+              DashboardPage(username: username, email: usernameOrEmail),
         ),
       );
     } else if (response.statusCode == 403) {

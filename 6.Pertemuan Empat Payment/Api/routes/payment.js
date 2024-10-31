@@ -2,6 +2,7 @@ const express = require("express");
 const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
 const crypto = require("crypto");
+const { Payments } = require("../models");
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ const apiKey = "DEV-uQMdt6gpiT1TRbkOMcqdmYDcjbOVHB2xaqdfmEpq";
 const privateKey = "Wf0B6-yUemf-3B8QV-09Qm7-rIrSD";
 const merchant_code = "T22235";
 
-async function createQrisTransaction(name, price, description) {
+async function createQrisTransaction(name, price, description, sku, email) {
   const merchant_ref = uuidv4();
   const amount = price;
   const expiry = parseInt(Math.floor(new Date() / 1000) + 24 * 60 * 60);
@@ -24,10 +25,10 @@ async function createQrisTransaction(name, price, description) {
     merchant_ref: merchant_ref,
     amount: amount,
     customer_name: name,
-    customer_email: "emailpelanggan@domain.com",
+    customer_email: email,
     order_items: [
       {
-        sku: "sku1",
+        sku: sku,
         name: name,
         price: price,
         quantity: 1,
@@ -45,11 +46,20 @@ async function createQrisTransaction(name, price, description) {
       {
         headers: { Authorization: "Bearer " + apiKey },
         validateStatus: function (status) {
-          return status < 999; // ignore http error
+          return status < 999;
         },
       }
     );
     console.log("QRIS Transaction Response:", response.data);
+
+    await Payments.create({
+      merchant_ref: merchant_ref,
+      name: name,
+      price: price,
+      description: description,
+      qris_url: response.data.data.checkout_url,
+    });
+
     return response.data.data.checkout_url;
   } catch (error) {
     console.error("Error creating QRIS transaction:", error);
@@ -60,14 +70,20 @@ async function createQrisTransaction(name, price, description) {
 router.post("/create-qris", async (req, res) => {
   const { name, price, description } = req.body;
 
-  if (!name || !price || !description) {
+  if (!name || !price || !description || !sku || !email) {
     return res
       .status(400)
       .json({ error: "Name, price, and description are required" });
   }
 
   try {
-    const qrisUrl = await createQrisTransaction(name, price, description);
+    const qrisUrl = await createQrisTransaction(
+      name,
+      price,
+      description,
+      sku,
+      email
+    );
     res.json({ qris_url: qrisUrl });
   } catch (error) {
     res.status(500).json({ error: "Failed to create QRIS transaction" });

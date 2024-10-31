@@ -20,8 +20,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginPage(), // Rute untuk halaman login
         '/dashboard': (context) => const DashboardPage(
-            username:
-                ''), // Rute untuk halaman dashboard dengan parameter username kosong
+              username: '',
+              email: '',
+            ), // Rute untuk halaman dashboard dengan parameter username kosong
       },
     );
   }
