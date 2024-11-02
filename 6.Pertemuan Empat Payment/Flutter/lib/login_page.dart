@@ -81,10 +81,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Image.asset(
-                  'images/logo.jpg',
-                  width: 200,
-                ),
+                Image.network("https://i.ibb.co.com/dMTZbM8/images.png"),
                 const SizedBox(height: 30),
                 const Align(
                   alignment: Alignment.centerLeft,

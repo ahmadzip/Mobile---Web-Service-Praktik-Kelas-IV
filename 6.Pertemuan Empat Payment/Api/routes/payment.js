@@ -19,13 +19,13 @@ async function createQrisTransaction(name, price, description, sku, email) {
     .createHmac("sha256", privateKey)
     .update(merchant_code + merchant_ref + amount)
     .digest("hex");
-
+  console.log(email);
   const payload = {
     method: "QRIS",
     merchant_ref: merchant_ref,
     amount: amount,
     customer_name: name,
-    customer_email: email,
+    customer_email: email + "@gmail.com",
     order_items: [
       {
         sku: sku,
@@ -52,15 +52,19 @@ async function createQrisTransaction(name, price, description, sku, email) {
     );
     console.log("QRIS Transaction Response:", response.data);
 
+    if (!response.data.data || !response.data.data.qr_url) {
+      throw new Error("Failed to get checkout URL");
+    }
+
     await Payments.create({
       merchant_ref: merchant_ref,
       name: name,
       price: price,
       description: description,
-      qris_url: response.data.data.checkout_url,
+      qris_url: response.data.data.qr_url,
     });
 
-    return response.data.data.checkout_url;
+    return response.data.data.qr_url;
   } catch (error) {
     console.error("Error creating QRIS transaction:", error);
     throw error;
@@ -68,12 +72,12 @@ async function createQrisTransaction(name, price, description, sku, email) {
 }
 
 router.post("/create-qris", async (req, res) => {
-  const { name, price, description } = req.body;
+  const { name, price, description, sku, email } = req.body;
 
   if (!name || !price || !description || !sku || !email) {
     return res
       .status(400)
-      .json({ error: "Name, price, and description are required" });
+      .json({ error: "Name, price, description, SKU, and email are required" });
   }
 
   try {
@@ -86,7 +90,7 @@ router.post("/create-qris", async (req, res) => {
     );
     res.json({ qris_url: qrisUrl });
   } catch (error) {
-    res.status(500).json({ error: "Failed to create QRIS transaction" });
+    res.status(500).json({ error: error.message });
   }
 });
 

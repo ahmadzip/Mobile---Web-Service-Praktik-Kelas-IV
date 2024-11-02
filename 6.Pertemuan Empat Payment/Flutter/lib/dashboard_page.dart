@@ -29,17 +29,25 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _fetchProducts() async {
-    final response =
-        await http.get(Uri.parse('http://192.168.0.105:3000/products'));
+    try {
+      final response =
+          await http.get(Uri.parse('http://192.168.0.105:3000/products'));
 
-    if (response.statusCode == 200) {
-      final List<dynamic> productJson = jsonDecode(response.body);
-      setState(() {
-        products = productJson.map((json) => Product.fromJson(json)).toList();
-      });
-    } else {
+      if (response.statusCode == 200) {
+        final List<dynamic> productJson = jsonDecode(response.body);
+        setState(() {
+          products = productJson.map((json) => Product.fromJson(json)).toList();
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Failed to load products: ${response.reasonPhrase}')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load products')),
+        SnackBar(content: Text('Failed to load products: $e')),
       );
     }
   }
@@ -59,8 +67,9 @@ class _DashboardPageState extends State<DashboardPage> {
       }),
     );
 
-    // Log the response body
+    // Log the response body and email for debugging
     print('Response body: ${response.body}');
+    print('Email sent: ${widget.email}');
 
     final responseBody = jsonDecode(response.body);
 
