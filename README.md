@@ -654,8 +654,6 @@ Dengan kode ini, `OurLecturers` menampilkan daftar dosen dengan foto bulat dan n
 
 # Pertemuan 3
 
-html> Panduan Flutter dan Node.js
-
 # Panduan Membuat Aplikasi Flutter dengan Login dan Register
 
 ## 1\. Instalasi Dependensi HTTP pada Flutter
@@ -1066,9 +1064,513 @@ Dan selesai!
 
 ![alt text](image/image-6.png)
 
+Component, Navigator, Wiget read view, list view
+
+## Component
+
+### 1. StatelessWidget
+
+`StatelessWidget` adalah widget yang tidak memiliki state. Artinya, widget ini tidak dapat diubah setelah dibuat. Contoh:
+
+````dart
+import 'package:flutter/material.dart';
+
+class MyStatelessWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Stateless Widget Example'),
+      ),
+      body: Center(
+        child: Text('Hello, World!'),
+      ),
+    );
+  }
+}
+
+### 2. StatefulWidget
+`StatefulWidget` adalah widget yang memiliki state. Artinya, widget ini dapat diubah setelah dibuat. Contoh:
+
+```dart
+import 'package:flutter/material.dart';
+
+class MyStatefulWidget extends StatefulWidget {
+  @override
+  _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
+}
+
+class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Stateful Widget Example'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text('You have pushed the button this many times:'),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.headline4,
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
+      ),
+    );
+  }
+}
+````
+
+### 3.Container
+
+`Container` adalah widget yang digunakan untuk membuat kontainer atau wadah untuk widget lainnya
+
+```dart
+
+import 'package:flutter/material.dart';
+
+class MyContainerWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Container Widget Example'),
+      ),
+      body: Center(
+        child: Container(
+          padding: EdgeInsets.all(16.0),
+          margin: EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          child: Text(
+            'Hello, Container!',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+```
+
+### 4.Column and Row
+
+`Column` dan `Row` adalah widget yang digunakan untuk menata widget secara vertikal (Column) atau horizontal (Row).
+
+```dart
+import 'package:flutter/material.dart';
+
+class MyColumnRowWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Column and Row Example'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text('Column Item 1'),
+            Text('Column Item 2'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text('Row Item 1'),
+                SizedBox(width: 10),
+                Text('Row Item 2'),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+```
+
+### 5.ListView
+
+ListView adalah widget yang digunakan untuk menampilkan daftar item yang dapat di-scroll.
+
+```dart
+import 'package:flutter/material.dart';
+
+class MyListViewWidget extends StatelessWidget {
+  final List<String> items = List<String>.generate(100, (i) => "Item $i");
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('ListView Example'),
+      ),
+      body: ListView.builder(
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text('${items[index]}'),
+          );
+        },
+      ),
+    );
+  }
+}
+
+```
+
+### 6.GestureDetector
+
+`GestureDetector` adalah widget yang digunakan untuk menangani berbagai jenis input pengguna, seperti ketukan, sentuhan, dan gerakan.
+
+```dart
+import 'package:flutter/material.dart';
+
+class MyGestureDetectorWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('GestureDetector Example'),
+      ),
+      body: Center(
+        child: GestureDetector(
+          onTap: () {
+            print('Tapped!');
+          },
+          child: Container(
+            padding: EdgeInsets.all(16.0),
+            color: Colors.blue,
+            child: Text(
+              'Tap me!',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+## Navigator
+
+### 1. Besic Navigation
+
+Navigator adalah widget yang digunakan untuk mengatur navigasi antar layar dalam aplikasi Flutter.
+
+```dart
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: LayarPertama(),
+    );
+  }
+}
+
+class LayarPertama extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Layar Pertama'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          child: Text('Pergi ke Layar Kedua'),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LayarKedua()),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class LayarKedua extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Layar Kedua'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          child: Text('Kembali'),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
+  }
+}
+```
+
+### 2. Passing Data
+
+Untuk mengirim data dari Layar Pertama ke Layar Kedua, kita dapat menggunakan
+
+```dart
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: LayarPertama(),
+    );
+  }
+}
+
+class LayarPertama extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Layar Pertama'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          child: Text('Pergi ke Layar Kedua'),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => LayarKedua(data: 'Halo dari Layar Pertama'),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class LayarKedua extends StatelessWidget {
+  final String data;
+
+  LayarKedua({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Layar Kedua'),
+      ),
+      body: Center(
+        child: Text(data),
+      ),
+    );
+  }
+}
+```
+
+### 3. Return Data
+
+Untuk mengembalikan data dari Layar Kedua ke Layar Pertama, kita
+
+```dart
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      initialRoute: '/',
+      routes: {
+        '/': (context) => LayarPertama(),
+        '/kedua': (context) => LayarKedua(),
+      },
+    );
+  }
+}
+
+class LayarPertama extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Layar Pertama'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          child: Text('Pergi ke Layar Kedua'),
+          onPressed: () {
+            Navigator.pushNamed(context, '/kedua');
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class LayarKedua extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Layar Kedua'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          child: Text('Kembali'),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+    );
+  }
+}
+```
+
+### 4. Mengambalikan data dari layar
+
+Berfungsi untuk mengembalikan data dari Layar Kedua ke Layar Pertama.
+
+```dart
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: LayarPertama(),
+    );
+  }
+}
+
+class LayarPertama extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Layar Pertama'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          child: Text('Pergi ke Layar Kedua'),
+          onPressed: () async {
+            final result = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => LayarKedua()),
+            );
+            ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('$result')));
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class LayarKedua extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Layar Kedua'),
+      ),
+      body: Center(
+        child: ElevatedButton(
+          child: Text('Kembali ke Layar Pertama'),
+          onPressed: () {
+            Navigator.pop(context, 'Halo dari Layar Kedua');
+          },
+        ),
+      ),
+    );
+  }
+}
+```
+
+### 1. ListView Sederhana
+
+`ListView` adalah widget yang digunakan untuk menampilkan daftar item yang dapat di-scroll.
+
+````dart
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('ListView Sederhana'),
+        ),
+        body: ListView(
+          children: <Widget>[
+            ListTile(
+              leading: Icon(Icons.map),
+              title: Text('Map'),
+            ),
+            ListTile(
+              leading: Icon(Icons.photo_album),
+              title: Text('Album'),
+            ),
+            ListTile(
+              leading: Icon(Icons.phone),
+              title: Text('Phone'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
 # Pertemuan 4
 
-Nama: Ahmad Suleman  
+Nama: Ahmad Suleman
 Npm: 5220411084
 
 # TUGAS QUIZ MEMBUAT APLIKASI RESTORAN
@@ -1102,7 +1604,7 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-```
+````
 
 setelah itu saya membuat sebuah api dimana api nya bisa registrasi dan login menggunakan node.js dan express.js dengan database sqlite di sini saya tidak akan menjelaskan code dari api tersebut, jadi lanjut ke file login_page.dart
 
