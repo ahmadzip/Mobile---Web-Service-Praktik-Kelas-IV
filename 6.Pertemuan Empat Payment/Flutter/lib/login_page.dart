@@ -5,6 +5,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 import 'registration_page.dart';
 import 'dashboard_page.dart';
 import 'otp_verification_page.dart'; // Import halaman OTP
+import 'forgot_password_page.dart'; // Import halaman Forgot Password
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -129,7 +130,14 @@ class _LoginPageState extends State<LoginPage> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPasswordPage(),
+                        ),
+                      );
+                    },
                     child: const Text('Forgot Password?',
                         style: TextStyle(color: Colors.blue)),
                   ),
