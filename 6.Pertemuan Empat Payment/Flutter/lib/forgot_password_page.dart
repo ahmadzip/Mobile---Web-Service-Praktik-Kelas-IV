@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'otp_verification_page.dart'; // Import the OTP verification page
 
 class ForgotPasswordPage extends StatefulWidget {
   const ForgotPasswordPage({super.key});
@@ -9,6 +10,20 @@ class ForgotPasswordPage extends StatefulWidget {
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController _emailController = TextEditingController();
+
+  void _sendResetLink() {
+    final String email = _emailController.text;
+
+    // Implement the logic to send the reset link here
+
+    // Navigate to the OTP verification page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OtpVerificationPage(username: email),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,9 +80,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {
-                      // Implementasi logika pengiriman email reset password
-                    },
+                    onPressed: _sendResetLink,
                     child: const Text('Send Reset Link',
                         style: TextStyle(fontSize: 18)),
                   ),
