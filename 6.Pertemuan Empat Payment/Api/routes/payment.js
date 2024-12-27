@@ -3,9 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 const axios = require("axios");
 const crypto = require("crypto");
 const { Payments } = require("../models");
-
 const router = express.Router();
-
 const apiKey = "DEV-uQMdt6gpiT1TRbkOMcqdmYDcjbOVHB2xaqdfmEpq";
 const privateKey = "Wf0B6-yUemf-3B8QV-09Qm7-rIrSD";
 const merchant_code = "T22235";
@@ -19,13 +17,12 @@ async function createQrisTransaction(name, price, description, sku, email) {
     .createHmac("sha256", privateKey)
     .update(merchant_code + merchant_ref + amount)
     .digest("hex");
-  console.log(email);
   const payload = {
     method: "QRIS",
     merchant_ref: merchant_ref,
     amount: amount,
     customer_name: name,
-    customer_email: email + "@gmail.com",
+    customer_email: email,
     order_items: [
       {
         sku: sku,
@@ -50,8 +47,6 @@ async function createQrisTransaction(name, price, description, sku, email) {
         },
       }
     );
-    console.log("QRIS Transaction Response:", response.data);
-
     if (!response.data.data || !response.data.data.qr_url) {
       throw new Error("Failed to get checkout URL");
     }
@@ -73,13 +68,11 @@ async function createQrisTransaction(name, price, description, sku, email) {
 
 router.post("/create-qris", async (req, res) => {
   const { name, price, description, sku, email } = req.body;
-
   if (!name || !price || !description || !sku || !email) {
     return res
       .status(400)
       .json({ error: "Name, price, description, SKU, and email are required" });
   }
-
   try {
     const qrisUrl = await createQrisTransaction(
       name,

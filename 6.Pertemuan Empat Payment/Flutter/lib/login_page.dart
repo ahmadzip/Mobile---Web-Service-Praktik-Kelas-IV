@@ -60,8 +60,8 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) =>
-              OtpVerificationPage(username: responseBody['username']),
+          builder: (context) => OtpVerificationPage(
+              email: responseBody['username'], verificationType: 'verify-otp'),
         ),
       );
     } else {

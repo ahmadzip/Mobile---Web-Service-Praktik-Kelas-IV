@@ -43,9 +43,10 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/verify-otp", async (req, res) => {
-  const { username, otp } = req.body;
+  const { email, otp } = req.body;
+  console.log(email, otp);
   try {
-    const user = await User.findOne({ where: { username, otp } });
+    const user = await User.findOne({ where: { username: email, otp } });
     if (!user) {
       return res.status(400).json({ message: "Invalid OTP!" });
     }
@@ -93,6 +94,58 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials!" });
     }
   } catch (error) {
+    return res.status(500).json({ message: "Internal server error!" });
+  }
+});
+
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(400).json({ message: "User not found!" });
+    }
+
+    const otp = generateOtp();
+    user.otp = otp;
+    await user.save();
+
+    const subject = "OTP for password reset";
+    const html = `<p>Your OTP code is: <strong>${otp}</strong></p>`;
+    const emailResult = await sendMail(email, subject, html);
+    if (!emailResult.status) {
+      return res.status(500).json({ message: "Failed to send OTP email." });
+    }
+
+    return res.status(200).json({ message: "OTP sent successfully!" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal server error!" });
+  }
+});
+
+router.post("/reset-password", async (req, res) => {
+  const { email, password, otp } = req.body;
+  console.log(email, password, otp);
+  try {
+    const user = await User.findOne({
+      where: {
+        [Sequelize.Op.or]: [{ username: email }, { email: email }],
+        otp,
+      },
+    });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid OTP!" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    user.otp = null;
+    await user.save();
+
+    return res.status(200).json({ message: "Password reset successfully!" });
+  } catch (error) {
+    console.log(error);
     return res.status(500).json({ message: "Internal server error!" });
   }
 });

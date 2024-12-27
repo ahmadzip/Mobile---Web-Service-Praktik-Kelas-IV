@@ -3,9 +3,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class OtpVerificationPage extends StatefulWidget {
-  final String username;
+  final String email;
+  final String verificationType; // Add verificationType parameter
 
-  const OtpVerificationPage({super.key, required this.username});
+  const OtpVerificationPage({
+    super.key,
+    required this.email,
+    required this.verificationType, // Initialize verificationType
+  });
 
   @override
   _OtpVerificationPageState createState() => _OtpVerificationPageState();
@@ -13,19 +18,31 @@ class OtpVerificationPage extends StatefulWidget {
 
 class _OtpVerificationPageState extends State<OtpVerificationPage> {
   final TextEditingController _otpController = TextEditingController();
+  final TextEditingController _passwordController =
+      TextEditingController(); // Add password controller for reset-password
 
   Future<void> _verifyOtp() async {
     final String otp = _otpController.text;
+    final String url = widget.verificationType == 'reset-password'
+        ? 'http://192.168.0.105:3000/reset-password'
+        : 'http://192.168.0.105:3000/verify-otp';
+
+    final Map<String, String> body = {
+      'email': widget.email,
+      'otp': otp,
+    };
+
+    if (widget.verificationType == 'reset-password') {
+      body['password'] =
+          _passwordController.text; // Add password to body if reset-password
+    }
 
     final response = await http.post(
-      Uri.parse('http://192.168.0.105:3000/verify-otp'),
+      Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{
-        'username': widget.username,
-        'otp': otp,
-      }),
+      body: jsonEncode(body),
     );
 
     final responseBody = jsonDecode(response.body);
@@ -83,6 +100,35 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                         vertical: 15, horizontal: 10),
                   ),
                 ),
+                if (widget.verificationType == 'reset-password') ...[
+                  const SizedBox(height: 20),
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Enter New Password',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'New Password',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.blueAccent),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.blue),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 10),
+                    ),
+                    obscureText: true,
+                  ),
+                ],
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,

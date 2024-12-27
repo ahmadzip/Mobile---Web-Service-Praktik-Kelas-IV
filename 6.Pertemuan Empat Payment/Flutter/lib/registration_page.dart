@@ -46,7 +46,8 @@ class _RegisterPageState extends State<RegisterPage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => OtpVerificationPage(username: username),
+          builder: (context) => OtpVerificationPage(
+              email: username, verificationType: 'verify-otp'),
         ),
       );
     } else {

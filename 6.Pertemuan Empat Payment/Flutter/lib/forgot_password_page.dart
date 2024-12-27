@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'otp_verification_page.dart'; // Import the OTP verification page
 
 class ForgotPasswordPage extends StatefulWidget {
@@ -11,28 +13,46 @@ class ForgotPasswordPage extends StatefulWidget {
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController _emailController = TextEditingController();
 
-  void _sendResetLink() {
+  Future<void> _sendResetLink() async {
     final String email = _emailController.text;
 
-    // Implement the logic to send the reset link here
-
-    // Navigate to the OTP verification page
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => OtpVerificationPage(username: email),
-      ),
+    final response = await http.post(
+      Uri.parse('http://192.168.0.105:3000/forgot-password'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'email': email,
+      }),
     );
+
+    final responseBody = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('OTP sent successfully!')),
+      );
+
+      // Navigate to the OTP verification page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OtpVerificationPage(
+              email: email, verificationType: 'reset-password'),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Failed to send OTP: ${responseBody['message']}')),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Forgot Password'),
-        backgroundColor: Colors.blue,
-      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
