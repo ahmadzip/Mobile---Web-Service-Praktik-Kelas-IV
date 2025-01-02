@@ -3,14 +3,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'otp_verification_page.dart'; // Import halaman OTP
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -20,9 +20,6 @@ class _RegisterPageState extends State<RegisterPage> {
     final String username = _usernameController.text;
     final String email = _emailController.text;
     final String password = _passwordController.text;
-
-    print('Starting registration process...');
-    print('Username: $username, Email: $email, Password: $password');
 
     final response = await http.post(
       Uri.parse('http://192.168.0.105:3000/register'),
@@ -68,14 +65,26 @@ class _RegisterPageState extends State<RegisterPage> {
         labelText: labelText,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.blueAccent),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(0, 0, 0, 0.15),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(0, 0, 0, 0.15),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.blue),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(0, 0, 0, 0.15),
+          ),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 24,
+          horizontal: 15,
+        ),
       ),
       obscureText: obscureText,
     );
@@ -92,8 +101,15 @@ class _RegisterPageState extends State<RegisterPage> {
       icon: Icon(icon, color: color),
       label: Text(method),
       style: ElevatedButton.styleFrom(
-        backgroundColor:
-            _selectedOtpMethod == method ? Colors.blue : Colors.grey,
+        backgroundColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(50),
+          side: const BorderSide(
+            color: Color.fromRGBO(0, 0, 0, 0.15),
+            width: 1.0,
+          ),
+        ),
+        elevation: 0,
       ),
     );
   }
@@ -109,12 +125,11 @@ class _RegisterPageState extends State<RegisterPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Image.network("https://i.ibb.co.com/dMTZbM8/images.png"),
                 const SizedBox(height: 30),
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Register',
+                    'Daftar',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -138,7 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Select OTP Method',
+                    'Pilih Metode OTP',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -167,17 +182,22 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
+                  height: 64,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      backgroundColor: Colors.blue,
+                      backgroundColor: const Color(0xFF000015),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(50),
                       ),
                     ),
                     onPressed: _register,
-                    child:
-                        const Text('Register', style: TextStyle(fontSize: 18)),
+                    child: const Text(
+                      'Daftar',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -191,7 +211,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         Navigator.pop(context);
                       },
                       child: const Text('Login',
-                          style: TextStyle(color: Colors.blue)),
+                          style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),

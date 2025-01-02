@@ -71,6 +71,41 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Widget _buildTextField(
+      {required TextEditingController controller,
+      required String labelText,
+      bool obscureText = false}) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(0, 0, 0, 0.15),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(0, 0, 0, 0.15),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(0, 0, 0, 0.15),
+          ),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 24,
+          horizontal: 15,
+        ),
+      ),
+      obscureText: obscureText,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -82,48 +117,23 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Image.network("https://i.ibb.co.com/dMTZbM8/images.png"),
                 const SizedBox(height: 30),
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Login',
+                    'Masuk',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ),
                 const SizedBox(height: 20),
-                TextField(
+                _buildTextField(
                   controller: _usernameOrEmailController,
-                  decoration: InputDecoration(
-                    labelText: 'Username or Email',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blueAccent),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blue),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 10),
-                  ),
+                  labelText: 'Username or Email',
                 ),
                 const SizedBox(height: 10),
-                TextField(
+                _buildTextField(
                   controller: _passwordController,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blueAccent),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blue),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 10),
-                  ),
+                  labelText: 'Password',
                   obscureText: true,
                 ),
                 const SizedBox(height: 10),
@@ -139,21 +149,28 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     },
                     child: const Text('Forgot Password?',
-                        style: TextStyle(color: Colors.blue)),
+                        style: TextStyle(color: Color(0xFF000015))),
                   ),
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
+                  height: 64,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      backgroundColor: Colors.blue,
+                      backgroundColor: const Color(0xFF000015),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(50),
+                      ),
                     ),
                     onPressed: _login,
-                    child: const Text('Login', style: TextStyle(fontSize: 18)),
+                    child: const Text(
+                      'Masuk',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -167,12 +184,12 @@ class _LoginPageState extends State<LoginPage> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const RegisterPage(),
+                            builder: (context) => const RegisterScreen(),
                           ),
                         );
                       },
                       child: const Text('Register',
-                          style: TextStyle(color: Colors.blue)),
+                          style: TextStyle(color: Color(0xFF000015))),
                     ),
                   ],
                 ),

@@ -49,6 +49,41 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     }
   }
 
+  Widget _buildTextField(
+      {required TextEditingController controller,
+      required String labelText,
+      bool obscureText = false}) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: labelText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(0, 0, 0, 0.15),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(0, 0, 0, 0.15),
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(
+            color: Color.fromRGBO(0, 0, 0, 0.15),
+          ),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 24,
+          horizontal: 15,
+        ),
+      ),
+      obscureText: obscureText,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,10 +95,6 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Image.asset(
-                  'images/logo.jpg',
-                  width: 200,
-                ),
                 const SizedBox(height: 30),
                 const Align(
                   alignment: Alignment.centerLeft,
@@ -73,37 +104,45 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                TextField(
+                _buildTextField(
                   controller: _emailController,
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blueAccent),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blue),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 10),
-                  ),
+                  labelText: 'Email',
                 ),
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
+                  height: 64,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      backgroundColor: Colors.blue,
+                      backgroundColor: const Color(0xFF000015),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(50),
                       ),
                     ),
                     onPressed: _sendResetLink,
-                    child: const Text('Send Reset Link',
-                        style: TextStyle(fontSize: 18)),
+                    child: const Text(
+                      'Send Reset Link',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text('Remember your password?',
+                        style: TextStyle(fontSize: 16)),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text('Login',
+                          style: TextStyle(color: Color(0xFF000015))),
+                    ),
+                  ],
                 ),
               ],
             ),

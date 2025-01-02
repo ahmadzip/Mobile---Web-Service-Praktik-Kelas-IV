@@ -71,10 +71,6 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Image.asset(
-                  'images/logo.jpg',
-                  width: 200,
-                ),
                 const SizedBox(height: 30),
                 const Align(
                   alignment: Alignment.centerLeft,
@@ -90,14 +86,20 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                     labelText: 'OTP',
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blueAccent),
+                      borderSide: const BorderSide(
+                        color: Color.fromRGBO(0, 0, 0, 0.15),
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Colors.blue),
+                      borderSide: const BorderSide(
+                        color: Color.fromRGBO(0, 0, 0, 0.15),
+                      ),
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                        vertical: 15, horizontal: 10),
+                      vertical: 24,
+                      horizontal: 15,
+                    ),
                   ),
                 ),
                 if (widget.verificationType == 'reset-password') ...[
@@ -135,14 +137,19 @@ class _OtpVerificationPageState extends State<OtpVerificationPage> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 15),
-                      backgroundColor: Colors.blue,
+                      backgroundColor: const Color(0xFF000015),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     onPressed: _verifyOtp,
-                    child: const Text('Verify OTP',
-                        style: TextStyle(fontSize: 18)),
+                    child: const Text(
+                      'Verify OTP',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ),
               ],

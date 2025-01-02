@@ -16,13 +16,26 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false,
       },
-      description: {
+      status: {
         type: Sequelize.STRING,
         allowNull: false,
+        defaultValue: "pending",
+      },
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "Users",
+          key: "id",
+        },
       },
       qris_url: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      sku: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       createdAt: {
         allowNull: false,

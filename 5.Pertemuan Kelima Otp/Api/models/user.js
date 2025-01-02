@@ -1,3 +1,4 @@
+"use strict";
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define("User", {
     username: {
@@ -23,6 +24,13 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: false,
     },
   });
+
+  User.associate = (models) => {
+    User.hasMany(models.Payment, {
+      foreignKey: "user_id",
+      as: "payments",
+    });
+  };
 
   return User;
 };

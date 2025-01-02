@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class DashboardPage extends StatefulWidget {
   final String username;
@@ -20,7 +18,6 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    FlutterDownloader.initialize();
     _fetchProducts();
   }
 
@@ -30,12 +27,16 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Future<void> _fetchProducts() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://192.168.0.105:3000/products'));
+      final response = await http.get(
+          Uri.parse('http://192.168.0.105:3000/user-products/${widget.email}'));
       if (response.statusCode == 200) {
         final List<dynamic> productJson = jsonDecode(response.body);
+
         setState(() {
-          products = productJson.map((json) => Product.fromJson(json)).toList();
+          products = productJson
+              .map((json) => Product.fromJson(json))
+              .toList()
+              .cast<Product>();
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -44,7 +45,10 @@ class _DashboardPageState extends State<DashboardPage> {
                   Text('Failed to load products: ${response.reasonPhrase}')),
         );
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      print('Error fetching products: $e');
+      print('StackTrace: $stackTrace');
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load products: $e')),
       );
@@ -52,33 +56,64 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _createQris(Product product) async {
-    final response = await http.post(
-      Uri.parse('http://192.168.0.105:3000/create-qris'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, dynamic>{
-        'name': product.name,
-        'price': product.price,
-        'description': product.description,
-        'sku': product.sku,
-        'email': widget.email,
-      }),
-    );
+    if (product.owned) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => DetailScreen(product: product),
+        ),
+      );
+      return;
+    }
 
-    // Log the response body and email for debugging
-    print('Response body: ${response.body}');
-    print('Email sent: ${widget.email}');
+    try {
+      final response = await http.post(
+        Uri.parse('http://192.168.0.105:3000/create-qris'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'emailOrUsername': widget.email,
+          'productId': product.sku,
+        }),
+      );
 
-    final responseBody = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
-    if (response.statusCode == 200 && responseBody['qris_url'] != null) {
-      final String qrisUrl = responseBody['qris_url'];
-      _showQrisDialog(qrisUrl);
-    } else {
+        print('Response body: $responseBody');
+
+        if (responseBody.containsKey('qris_url')) {
+          final Map<String, dynamic> qrisUrlMap = responseBody['qris_url'];
+          if (qrisUrlMap.containsKey('qris_url')) {
+            final String qrisUrl = qrisUrlMap['qris_url'];
+            _showQrisDialog(qrisUrl);
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content:
+                      Text('Failed to create QRIS: Invalid QRIS URL format')),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content:
+                    Text('Failed to create QRIS: ${responseBody['message']}')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text('Failed to create QRIS: ${response.reasonPhrase}')),
+        );
+      }
+    } catch (e, stackTrace) {
+      print('Error creating QRIS: $e');
+      print('StackTrace: $stackTrace');
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Failed to create QRIS: ${responseBody['message']}')),
+        SnackBar(content: Text('Failed to create QRIS: $e')),
       );
     }
   }
@@ -94,32 +129,6 @@ class _DashboardPageState extends State<DashboardPage> {
             children: [
               Image.network(qrisUrl),
               const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () async {
-                  final status = await Permission.storage.request();
-                  if (status.isGranted) {
-                    final taskId = await FlutterDownloader.enqueue(
-                      url: qrisUrl,
-                      savedDir: '/storage/emulated/0/Download',
-                      fileName: 'qris.png',
-                      showNotification: true,
-                      openFileFromNotification: true,
-                    );
-                    if (taskId != null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Image downloaded successfully')),
-                      );
-                    }
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Permission denied to download image')),
-                    );
-                  }
-                },
-                child: const Text('Download QR Code'),
-              ),
             ],
           ),
           actions: [
@@ -132,7 +141,10 @@ class _DashboardPageState extends State<DashboardPage> {
           ],
         );
       },
-    );
+    ).then((_) {
+      // Refresh products after the dialog is closed
+      _fetchProducts();
+    });
   }
 
   @override
@@ -140,133 +152,138 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Dashboard'),
+        title: const Text(
+          'CourseConnect',
+          style: TextStyle(color: Colors.black),
+        ),
+        centerTitle: true,
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.network(
+            'https://i.ibb.co/r5r1vRL/logo.png', // Updated image URL
+            fit: BoxFit.contain,
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.black),
             onPressed: _logout,
           ),
         ],
       ),
       backgroundColor: Colors.white,
-      body: Padding(
+      body: ListView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: Image.network(
-                    "https://ui-avatars.com/api/?name=${widget.username}?size=100",
-                  ).image,
+        children: [
+          Row(
+            children: <Widget>[
+              CircleAvatar(
+                radius: 30,
+                backgroundImage: NetworkImage(
+                  "https://ui-avatars.com/api/?name=${widget.username}&size=100",
                 ),
-                const SizedBox(width: 10),
-                Expanded(
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      widget.username,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      widget.email,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Text(
+                      'Selamat Pagi',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          if (products.isEmpty)
+            const Center(child: CircularProgressIndicator())
+          else
+            ...products.map((product) {
+              return Container(
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: const Color.fromRGBO(0, 0, 0, 0.15),
+                    width: 1.0,
+                  ),
+                  borderRadius: BorderRadius.circular(15.0),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        widget.username,
+                        product.name,
                         style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
+                      const SizedBox(height: 10),
                       Text(
-                        widget.email,
+                        'Price: Rp${product.price}',
                         style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                          fontSize: 16,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      const Text(
-                        'Selamat Pagi',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
+                      const SizedBox(height: 10),
+                      Text(
+                        product.description,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 64,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF000015),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(1000),
+                            ),
+                          ),
+                          onPressed: () => _createQris(product),
+                          child: Text(
+                            product.owned ? 'Lihat Course' : 'Beli Course',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            Image.asset(
-              'images/carousell.jpg',
-              height: 150,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: ListView.builder(
-                itemCount: products.length,
-                itemBuilder: (context, index) {
-                  final product = products[index];
-                  return Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                    ),
-                    elevation: 5,
-                    margin: const EdgeInsets.symmetric(vertical: 10),
-                    child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Row(
-                        children: <Widget>[
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10.0),
-                            child: Image.network(
-                              product.imageUrl,
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  product.name,
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  product.description,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  'SKU: ${product.sku}',
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  'Rp${product.price}',
-                                  style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Column(
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.arrow_forward_ios),
-                                onPressed: () => _createQris(product),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
+              );
+            }),
+        ],
       ),
     );
   }
@@ -278,6 +295,7 @@ class Product {
   final String description;
   final String imageUrl;
   final int price;
+  final bool owned;
 
   Product({
     required this.sku,
@@ -285,6 +303,7 @@ class Product {
     required this.description,
     required this.imageUrl,
     required this.price,
+    required this.owned,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -294,6 +313,46 @@ class Product {
       description: json['description'],
       imageUrl: json['imageUrl'],
       price: json['price'],
+      owned: json['owned'] ?? false, // Provide a default value for owned
+    );
+  }
+}
+
+class DetailScreen extends StatelessWidget {
+  final Product product;
+
+  const DetailScreen({super.key, required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(product.name),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Image.network(product.imageUrl),
+            const SizedBox(height: 10),
+            Text(
+              product.name,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Price: Rp${product.price}',
+              style: const TextStyle(fontSize: 20, color: Colors.black),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              product.description,
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
