@@ -2,7 +2,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { Sequelize } = require("sequelize");
-const { User } = require("../models");
+const { User, Payment } = require("../models");
 const generateOtp = require("../utils/otp");
 const sendMail = require("../utils/sendEmail");
 
@@ -150,4 +150,36 @@ router.post("/reset-password", async (req, res) => {
   }
 });
 
+router.delete("/delete/:email", async (req, res) => {
+  const { email } = req.params;
+  console.log(email);
+
+  try {
+    const user = await User.findOne({
+      where: {
+        [Sequelize.Op.or]: [{ email }, { username: email }],
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Delete all payments related to the user
+    await Payment.destroy({
+      where: {
+        user_id: user.id,
+      },
+    });
+
+    // Delete the user
+    await user.destroy();
+    return res.json({ message: "User and related payments deleted" });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: "Failed to delete user and related payments" });
+  }
+});
 module.exports = router;

@@ -97,18 +97,24 @@ router.put("/products/:sku", async (req, res) => {
   }
 });
 
-router.delete("/products/:sku", async (req, res) => {
-  const { sku } = req.params;
+router.delete("/delete/:email", async (req, res) => {
+  const { email } = req.params;
   try {
-    const product = await Product.findOne({ where: { sku } });
-    if (product) {
-      await product.destroy();
-      res.json({ message: "Product deleted" });
-    } else {
-      res.status(404).json({ error: "Product not found" });
+    const user = await User.findOne({
+      where: {
+        [Sequelize.Op.or]: [{ email: email }, { username: email }],
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
+
+    await user.destroy();
+    return res.json({ message: "User deleted" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete product" });
+    console.error(error);
+    return res.status(500).json({ error: "Failed to delete user" });
   }
 });
 
