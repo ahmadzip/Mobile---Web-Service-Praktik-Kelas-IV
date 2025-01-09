@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart'; // Mengimpor paket material design Flutter
-import 'login_page.dart'; // Mengimpor file login_page.dart
-import 'dashboard_page.dart'; // Mengimpor file dashboard_page.dart
+import 'Auth/login_page.dart'; // Mengimpor file login_page.dart
+import 'Home/dashboard_page.dart'; // Mengimpor file dashboard_page.dart
 
 void main() {
   runApp(const MyApp()); // Menjalankan aplikasi Flutter dengan widget MyApp

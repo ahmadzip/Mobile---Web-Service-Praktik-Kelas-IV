@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'registration_page.dart';
-import 'dashboard_page.dart';
+import '../Home/dashboard_page.dart';
 import 'otp_verification_page.dart';
 import 'forgot_password_page.dart';
 
