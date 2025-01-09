@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'otp_verification_page.dart'; // Import halaman OTP
+import 'otp_verification_page.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -15,8 +15,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   String _selectedOtpMethod = 'Gmail';
+  bool _isLoading = false;
 
   Future<void> _register() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     final String username = _usernameController.text;
     final String email = _emailController.text;
     final String password = _passwordController.text;
@@ -53,6 +58,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             content: Text('Failed to register: ${responseBody['message']}')),
       );
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Widget _buildTextField(
@@ -98,10 +107,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
           _selectedOtpMethod = method;
         });
       },
-      icon: Icon(icon, color: color),
+      icon: Icon(icon,
+          color: _selectedOtpMethod == method ? Colors.white : color),
       label: Text(method),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
+        backgroundColor:
+            _selectedOtpMethod == method ? Colors.black : Colors.transparent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(50),
           side: const BorderSide(
@@ -190,14 +201,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         borderRadius: BorderRadius.circular(50),
                       ),
                     ),
-                    onPressed: _register,
-                    child: const Text(
-                      'Daftar',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
+                    onPressed: _isLoading ? null : _register,
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          )
+                        : const Text(
+                            'Daftar',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),

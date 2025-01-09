@@ -377,6 +377,10 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+  void _logout() {
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
   void _deleteAccount() async {
     try {
       final response = await http.delete(
@@ -388,7 +392,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       print('Response: ${response.body}');
       if (response.statusCode == 200) {
         Navigator.pop(context); // Navigate back to the previous screen
-        // Add your logout logic here
+        _logout();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

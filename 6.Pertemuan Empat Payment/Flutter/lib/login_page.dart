@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'registration_page.dart';
 import 'dashboard_page.dart';
-import 'otp_verification_page.dart'; // Import halaman OTP
-import 'forgot_password_page.dart'; // Import halaman Forgot Password
+import 'otp_verification_page.dart';
+import 'forgot_password_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -18,8 +18,13 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameOrEmailController =
       TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
 
   Future<void> _login() async {
+    setState(() {
+      _isLoading = true;
+    });
+
     final String usernameOrEmail = _usernameOrEmailController.text;
     final String password = _passwordController.text;
 
@@ -69,6 +74,10 @@ class _LoginPageState extends State<LoginPage> {
         SnackBar(content: Text('Failed to login: ${responseBody['message']}')),
       );
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Widget _buildTextField(
@@ -163,14 +172,19 @@ class _LoginPageState extends State<LoginPage> {
                         borderRadius: BorderRadius.circular(50),
                       ),
                     ),
-                    onPressed: _login,
-                    child: const Text(
-                      'Masuk',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
+                    onPressed: _isLoading ? null : _login,
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          )
+                        : const Text(
+                            'Masuk',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 20),
